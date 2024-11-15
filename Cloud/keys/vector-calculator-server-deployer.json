@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "cmkl-vectorcalculator",
+  "private_key_id": "85cac85b87898ec1a5002b28008b147056ddaa0a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCvRxP/vh8BQwIp\n0obt6VdJT1T3nrbMatbQlTGZucdRnqbBoBFtAMgNqWhAiXRrY6LIhRPlXhMxy1O1\nNJAg6DwiwwmK1LgsSZedVzM1PfZlrHxH9+UIH1dy+eowYJ3vAoBnwPV9QwugJQzT\nE0QgzwL30ZPHEFA92ygZWEQWv0KoCA9GA9zieU1CaBg6xbpE9ko15ws47ClBVxMn\nqef7XRUrkCAYYe0DFvf9alTUj8XiiQVXjMNyZzkzmWjzQBcpOZWoNubHz7NInx5O\nerkMJW1NPlgcgY2x5fZMqTdHxxkP9MQjO9fX/KKLjbLJ2x4FgxO5lwzWsHHctRNt\nRSJFioZNAgMBAAECggEAPCCz+Z1s4W/tRA+WffL4IIv4Z+Gob8OO4YrsswGKILO+\nHNoeYDhOaHFe9BSzPUu2wfb09lApYYGQu67GaqOATaR+l4OVkovEWRNa277f0c0z\n7TRa+0hVJXoaHnJme2FuTylgjZH8YPmUxqvrSR36tKzOdxFflXii7t7arLr70Mww\n6NY/AGT2dZUJYUrZTJdYdCfhaodMK7HBMN2XWQijtiAxuzNnWewBNidA6HFhXS0E\n9pPezauzYH6yHYj7/uypW+KIvhPpLvkWdm5U10T8EspaiGnj3DduKjhWQyuMgTIv\nlzNmwGMpQf+F4qhikq5HwIAEenMY062oDWYzA2rseQKBgQDqosgNReXOOV+9Dih3\nvLHmw6s/5JzIRLhRcifi2pxUTj7lylEc2A+KU7QbeBJBwVrp+GE3G7uV4/r66gBF\nTrz1h7tWlrZi62iZgAaXk3JBE9a8QKKKbUPb0tLWkb3LARJUC2vxdUeCVrmJaf5R\nmm0U8cTn1UkIXVG8NPS7p2z0bwKBgQC/PLFk0W87DKL6p7/eif2YffVQdc1a/GqA\n6Rq3PAk722HyAU4dJq/CW1eKmUsBj6yRb4Me0x+XDnZXTiZ0gTqZ4XIyMoyI7JIf\nDwfw2qENZB+bGT3cx3oEaYC+LiW69C+QTVeKhMFb/0GFydNm1ctK1gjKXEyGRltl\nTg9mWUVnAwKBgGZQqW+wRS+SMT9dhyP/cowwUuK/q+ZgoQdTAjWYIodYv3CwsoIj\nbVNigK1hxIRL7nsMRkgjnb8U9QKpO4j9dsSSdYyil9G22ZvmCfna3/2kywS4Iqi+\nUNLwsePDFcIKK5XejSlzfMVHUAyt3apz7pEthDGb/gbZuqSZawbRUV+dAoGBAKAJ\nrbbeYgR7ncTAL5yPxE8iUfJks1dKV+LLsRTYxC14ea4qE3Hn1zyCbm9Ju/BxiQwo\n0wUvz4b9jmGfwCTNpPn0JjoF/X/04o/lZ1LT0+W9/YkxhYjG0sDwfdIqEl8zTL6p\nSvJcCOjxY6cP8L9leXyGQ9L9jPjt1jygJ9kSKjd7AoGBAMcaSAGseZ5/2fxYpy3S\nRQWHb5htwwpFJK4tTJ/O9m0xlbjS9HioqKFj/I1lyyrESEbUAW0TRXJo5AE959MS\nXWSeoeCxiywKnYLnF546BkJ0d7mQhDuv/b31vNiQmPBbFX2bNR0YjYHZIUbJgLrf\nsoMYCp+Ewq0hpp6LCal5W6k2\n-----END PRIVATE KEY-----\n",
+  "client_email": "vector-calculator-server-deplo@cmkl-vectorcalculator.iam.gserviceaccount.com",
+  "client_id": "103722901785588733130",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/vector-calculator-server-deplo%40cmkl-vectorcalculator.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
