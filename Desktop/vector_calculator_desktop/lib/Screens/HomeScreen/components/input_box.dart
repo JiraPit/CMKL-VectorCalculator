@@ -13,7 +13,7 @@ class _InputBoxState extends State<InputBox> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 236,
+      width: 263,
       height: 66,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(

@@ -47,135 +47,122 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: SizedBox(
-            width:
-                800, // Set a fixed width for the entire content to keep it centered
-            child: IntrinsicHeight(
-              // This aligns both columns to the tallest child
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left side - Vectors Section
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 20),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List.generate(vectorCount, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Vector V${index + 1}',
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const InputBox(
-                                    hintText: '(x, y, z)',
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 20),
-                        GestureDetector(
-                          onTap: addVector,
-                          child: Container(
-                            height: 66,
-                            width: 263,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFC289),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'ADD VECTOR',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 24, color: Colors.black),
-                              ),
-                            ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left side - Vectors Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(vectorCount, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Vector V${index + 1}',
+                            style: const TextStyle(fontSize: 24),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          const InputBox(
+                            hintText: '(x, y, z)',
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: addVector,
+                  child: Container(
+                    height: 66,
+                    width: 263,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFC289),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'ADD VECTOR',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 24, color: Colors.black),
+                      ),
                     ),
                   ),
-
-                  // Right side - Operations Section
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 20),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List.generate(operationsCount, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Resultant ${index + 1}',
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Expanded(
-                                        child: InputBox(
-                                          hintText: 'v1 + v2',
-                                        ),
-                                      ),
-                                      Checkbox(
-                                        value: operationSelections[index],
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            operationSelections[index] =
-                                                value ?? false;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 20),
-                        GestureDetector(
-                          onTap: addOperation,
-                          child: Container(
-                            height: 66,
-                            width: 263,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFC289),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'ADD OPERATION',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 24, color: Colors.black),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
-          ),
+
+            const SizedBox(width: 200),
+
+            // Right side - Operations Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(operationsCount, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Resultant ${index + 1}',
+                            style: const TextStyle(fontSize: 24),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const InputBox(
+                                hintText: 'v1 + v2',
+                              ),
+                              Checkbox(
+                                value: operationSelections[index],
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    operationSelections[index] = value ?? false;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: addOperation,
+                  child: Container(
+                    height: 66,
+                    width: 263,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFC289),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'ADD OPERATION',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 24, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ],
         ),
       ),
     );
