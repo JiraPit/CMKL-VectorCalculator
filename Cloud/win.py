@@ -11,24 +11,31 @@ vectors = [
 coordinates = np.array([vec[:3] for vec in vectors])  # Get only x, y, z values
 colors = [vec[3] for vec in vectors]  # Get color codes
 
-# Function to add two vectors (ignoring color)
-def add_vectors(v1, v2):
-    return [int(v1[i] + v2[i]) for i in range(3)]  # Convert results to int
+# Function to add multiple vectors (ignoring color)
+def add_multiple_vectors(vectors):
+    result = np.sum(vectors, axis=0)
+    return [int(val) for val in result]
 
-# Function to subtract two vectors (ignoring color)
-def subtract_vectors(v1, v2):
-    return [int(v1[i] - v2[i]) for i in range(3)]  # Convert results to int
+# Function to subtract multiple vectors (ignoring color)
+def subtract_multiple_vectors(vectors):
+    result = vectors[0]  # Start with the first vector
+    for vec in vectors[1:]:
+        result = np.subtract(result, vec)
+    return [int(val) for val in result]
 
-# Function to multiply two vectors element-wise (ignoring color)
-def multiply_vectors(v1, v2):
-    return [int(v1[i] * v2[i]) for i in range(3)]  # Convert results to int
+# Function to multiply multiple vectors element-wise (ignoring color)
+def multiply_multiple_vectors(vectors):
+    result = vectors[0]  # Start with the first vector
+    for vec in vectors[1:]:
+        result = np.multiply(result, vec)
+    return [int(val) for val in result]
 
-# Perform example operations
-addition_result = add_vectors(coordinates[0], coordinates[1])
-subtraction_result = subtract_vectors(coordinates[0], coordinates[1])
-multiplication_result = multiply_vectors(coordinates[0], coordinates[1])
+# Perform operations on all vectors
+addition_result = add_multiple_vectors(coordinates)
+subtraction_result = subtract_multiple_vectors(coordinates)
+multiplication_result = multiply_multiple_vectors(coordinates)
 
 # Output results
-print("Addition of first and second vectors:", addition_result)
-print("Subtraction of first and second vectors:", subtraction_result)
-print("Element-wise multiplication of first and second vectors:", multiplication_result)
+print("Addition of all vectors:", addition_result)
+print("Subtraction of all vectors:", subtraction_result)
+print("Element-wise multiplication of all vectors:", multiplication_result)
