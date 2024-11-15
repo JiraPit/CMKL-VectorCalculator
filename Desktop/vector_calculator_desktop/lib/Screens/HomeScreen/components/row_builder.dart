@@ -5,6 +5,7 @@ class RowBuilder extends StatelessWidget {
   final int itemCount;
   final String labelPrefix;
   final String inputHint;
+  final String buttonText;
   final Function onAddItem;
   final bool hasCheckbox;
   final List<bool>? operationSelections;
@@ -15,6 +16,7 @@ class RowBuilder extends StatelessWidget {
     required this.itemCount,
     required this.labelPrefix,
     required this.inputHint,
+    required this.buttonText,
     required this.onAddItem,
     this.hasCheckbox = false,
     this.operationSelections,
@@ -31,7 +33,7 @@ class RowBuilder extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(itemCount, (index) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 25),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -61,7 +63,7 @@ class RowBuilder extends StatelessWidget {
             );
           }),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 66),
         GestureDetector(
           onTap: () {
             onAddItem();
@@ -73,16 +75,14 @@ class RowBuilder extends StatelessWidget {
               color: const Color(0xFFFFC289),
               borderRadius: BorderRadius.circular(5),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
-                'ADD ITEM',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24, color: Colors.black),
+                buttonText,
+                style: const TextStyle(fontSize: 24, color: Colors.black),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 20),
       ],
     );
   }

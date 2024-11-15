@@ -32,6 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void draw() {
+    debugPrint('Draw button pressed');
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,34 +52,66 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
           children: [
-            // Left side - Vectors Section
-            RowBuilder(
-              itemCount: vectorCount,
-              labelPrefix: 'Vector V',
-              inputHint: '(x, y, z)',
-              onAddItem: addVector,
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left side - Vectors Section
+                RowBuilder(
+                  itemCount: vectorCount,
+                  labelPrefix: 'Vector V',
+                  inputHint: '(x, y, z)',
+                  buttonText: 'ADD VECTOR',
+                  onAddItem: addVector,
+                ),
 
-            const SizedBox(width: 200),
+                const SizedBox(width: 200),
 
-            // Right side - Operations Section
-            RowBuilder(
-              itemCount: operationsCount,
-              labelPrefix: 'Resultant',
-              inputHint: 'v1 + v2',
-              onAddItem: addOperation,
-              hasCheckbox: true,
-              operationSelections: operationSelections,
-              onCheckboxChanged: (index, value) {
-                setState(() {
-                  operationSelections[index] = value ?? false;
-                });
-              },
+                // Right side - Operations Section
+                RowBuilder(
+                  itemCount: operationsCount,
+                  labelPrefix: 'Resultant',
+                  inputHint: 'v1 + v2',
+                  buttonText: 'ADD EXPRESSION',
+                  onAddItem: addOperation,
+                  hasCheckbox: true,
+                  operationSelections: operationSelections,
+                  onCheckboxChanged: (index, value) {
+                    setState(() {
+                      operationSelections[index] = value ?? false;
+                    });
+                  },
+                ),
+              ],
             ),
+            const SizedBox(height: 70),
+            Container(
+              height: 1,
+              width: 1263,
+              color: Colors.black,
+            ),
+            const SizedBox(height: 61),
+            Center(
+              child: Container(
+                width: 263,
+                height: 66,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF66E16C),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: const Center(
+                  child: Text(
+                    "DRAW!",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
