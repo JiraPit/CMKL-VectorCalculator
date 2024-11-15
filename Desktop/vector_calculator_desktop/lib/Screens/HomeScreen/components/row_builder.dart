@@ -1,19 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:vector_calculator_desktop/Screens/HomeScreen/components/input_box.dart';
 
-class RowBuilder extends StatefulWidget {
-  const RowBuilder({super.key});
+class RowBuilder extends StatelessWidget {
+  final int itemCount;
+  final String labelPrefix;
+  final String inputHint;
+  final Function onAddItem;
+  final bool hasCheckbox;
+  final List<bool>? operationSelections;
+  final Function(int, bool?)? onCheckboxChanged;
 
-  @override
-  State<RowBuilder> createState() => _RowBuilderState();
-}
+  const RowBuilder({
+    super.key,
+    required this.itemCount,
+    required this.labelPrefix,
+    required this.inputHint,
+    required this.onAddItem,
+    this.hasCheckbox = false,
+    this.operationSelections,
+    this.onCheckboxChanged,
+  });
 
-class _RowBuilderState extends State<RowBuilder> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 100,
-      width: 100,
-      color: Colors.green,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(itemCount, (index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$labelPrefix${index + 1}',
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      InputBox(
+                        hintText: inputHint,
+                      ),
+                      if (hasCheckbox)
+                        Checkbox(
+                          value: operationSelections?[index] ?? false,
+                          onChanged: (bool? value) {
+                            if (onCheckboxChanged != null) {
+                              onCheckboxChanged!(index, value);
+                            }
+                          },
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 20),
+        GestureDetector(
+          onTap: () {
+            onAddItem();
+          },
+          child: Container(
+            height: 66,
+            width: 263,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFC289),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: const Center(
+              child: Text(
+                'ADD ITEM',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 24, color: Colors.black),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }

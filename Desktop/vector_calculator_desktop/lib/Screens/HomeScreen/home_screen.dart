@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vector_calculator_desktop/Screens/HomeScreen/components/input_box.dart';
+import 'package:vector_calculator_desktop/Screens/HomeScreen/components/row_builder.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,115 +52,28 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Left side - Vectors Section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(vectorCount, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Vector V${index + 1}',
-                            style: const TextStyle(fontSize: 24),
-                          ),
-                          const SizedBox(height: 8),
-                          const InputBox(
-                            hintText: '(x, y, z)',
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: addVector,
-                  child: Container(
-                    height: 66,
-                    width: 263,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFC289),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'ADD VECTOR',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 24, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+            RowBuilder(
+              itemCount: vectorCount,
+              labelPrefix: 'Vector V',
+              inputHint: '(x, y, z)',
+              onAddItem: addVector,
             ),
 
             const SizedBox(width: 200),
 
             // Right side - Operations Section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(operationsCount, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Resultant ${index + 1}',
-                            style: const TextStyle(fontSize: 24),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const InputBox(
-                                hintText: 'v1 + v2',
-                              ),
-                              Checkbox(
-                                value: operationSelections[index],
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    operationSelections[index] = value ?? false;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: addOperation,
-                  child: Container(
-                    height: 66,
-                    width: 263,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFC289),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'ADD OPERATION',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 24, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+            RowBuilder(
+              itemCount: operationsCount,
+              labelPrefix: 'Resultant',
+              inputHint: 'v1 + v2',
+              onAddItem: addOperation,
+              hasCheckbox: true,
+              operationSelections: operationSelections,
+              onCheckboxChanged: (index, value) {
+                setState(() {
+                  operationSelections[index] = value ?? false;
+                });
+              },
             ),
           ],
         ),
