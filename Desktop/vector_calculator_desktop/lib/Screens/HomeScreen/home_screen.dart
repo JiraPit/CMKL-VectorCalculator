@@ -26,6 +26,37 @@ class _HomeScreenState extends State<HomeScreen> {
     operations = List.generate(operationsCount, (_) => '');
   }
 
+  void updateVector(int index, String value) {
+    setState(() {
+      if (index < vectors.length) {
+        vectors[index] = value;
+      }
+    });
+  }
+
+  void updateOperation(int index, String value) {
+    setState(() {
+      if (index < operations.length) {
+        operations[index] = value;
+      }
+    });
+  }
+
+  void addVector() {
+    setState(() {
+      vectorCount++;
+      vectors.add('');
+    });
+  }
+
+  void addOperation() {
+    setState(() {
+      operationsCount++;
+      operations.add('');
+      operationSelections.add(false);
+    });
+  }
+
   Future<void> getEvaluation() async {
     // Construct the request body
     final body = {
@@ -33,8 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
         for (int i = 0; i < vectorCount; i++)
           'v${i + 1}': _parseVector(vectors[i]),
       },
-      "expressions": operations,
+      "expressions": [
+        for (int i = 0; i < operationsCount; i++)
+          if (operationSelections[i]) operations[i],
+      ],
     };
+
+    // Print the body
+    debugPrint('Request: $body');
 
     try {
       // Make an HTTP POST request
@@ -81,21 +118,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void addVector() {
-    setState(() {
-      vectorCount++;
-    });
-  }
-
-  void addOperation() {
-    setState(() {
-      operationsCount++;
-      operationSelections.add(false);
-    });
-  }
-
   void draw() {
     debugPrint('Draw button pressed');
+    debugPrint('Vectors: $vectors');
+    debugPrint('Operations: $operations');
+    getEvaluation();
     setState(() {});
   }
 
@@ -127,10 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   inputHint: '(x, y, z)',
                   buttonText: 'ADD VECTOR',
                   onAddItem: addVector,
+                  onValueChanged: updateVector,
                 ),
-
                 const SizedBox(width: 200),
-
                 // Right side - Operations Section
                 RowBuilder(
                   itemCount: operationsCount,
@@ -138,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   inputHint: 'v1 + v2',
                   buttonText: 'ADD EXPRESSION',
                   onAddItem: addOperation,
+                  onValueChanged: updateOperation,
                   hasCheckbox: true,
                   operationSelections: operationSelections,
                   onCheckboxChanged: (index, value) {
@@ -156,19 +183,22 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 61),
             Center(
-              child: Container(
-                width: 263,
-                height: 66,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF66E16C),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Center(
-                  child: Text(
-                    "DRAW!",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24,
+              child: GestureDetector(
+                onTap: draw,
+                child: Container(
+                  width: 263,
+                  height: 66,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF66E16C),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "DRAW!",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                      ),
                     ),
                   ),
                 ),

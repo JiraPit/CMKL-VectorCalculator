@@ -7,6 +7,8 @@ class RowBuilder extends StatelessWidget {
   final String inputHint;
   final String buttonText;
   final Function onAddItem;
+  final Function(int, String)
+      onValueChanged; // Callback for updating input values
   final bool hasCheckbox;
   final List<bool>? operationSelections;
   final Function(int, bool?)? onCheckboxChanged;
@@ -18,6 +20,7 @@ class RowBuilder extends StatelessWidget {
     required this.inputHint,
     required this.buttonText,
     required this.onAddItem,
+    required this.onValueChanged,
     this.hasCheckbox = false,
     this.operationSelections,
     this.onCheckboxChanged,
@@ -46,6 +49,7 @@ class RowBuilder extends StatelessWidget {
                     children: [
                       InputBox(
                         hintText: inputHint,
+                        onValueChanged: (value) => onValueChanged(index, value),
                       ),
                       if (hasCheckbox)
                         Checkbox(
