@@ -2,29 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:vector_calculator_desktop/Screens/HomeScreen/components/input_box.dart';
 
 class RowBuilder extends StatelessWidget {
-  final int itemCount;
-  final String labelPrefix;
-  final String inputHint;
-  final String buttonText;
-  final Function onAddItem;
-  final Function(int, String)
-      onValueChanged; // Callback for updating input values
-  final bool hasCheckbox;
-  final List<bool>? operationSelections;
-  final Function(int, bool?)? onCheckboxChanged;
-
   const RowBuilder({
     super.key,
-    required this.itemCount,
-    required this.labelPrefix,
     required this.inputHint,
     required this.buttonText,
     required this.onAddItem,
     required this.onValueChanged,
     this.hasCheckbox = false,
-    this.operationSelections,
+    this.checkboxValues,
     this.onCheckboxChanged,
+    required this.data,
   });
+
+  final Map<String, String> data;
+  final String inputHint;
+  final String buttonText;
+  final Function onAddItem;
+  final Function(String, String) onValueChanged;
+  final bool hasCheckbox;
+  final List<bool>? checkboxValues;
+  final Function(String, bool?)? onCheckboxChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -34,41 +31,52 @@ class RowBuilder extends StatelessWidget {
         const SizedBox(height: 20),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(itemCount, (index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 25),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$labelPrefix${index + 1}',
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      InputBox(
-                        hintText: inputHint,
-                        onValueChanged: (value) => onValueChanged(index, value),
-                      ),
-                      if (hasCheckbox)
-                        Checkbox(
-                          value: operationSelections?[index] ?? false,
-                          onChanged: (bool? value) {
-                            if (onCheckboxChanged != null) {
-                              onCheckboxChanged!(index, value);
-                            }
+          children: List.generate(
+            data.length,
+            (index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.keys.elementAt(index),
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        InputBox(
+                          hintText: inputHint,
+                          onValueChanged: (String newValue) {
+                            onValueChanged(
+                              data.keys.elementAt(index),
+                              newValue,
+                            );
                           },
                         ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
+                        if (hasCheckbox)
+                          Checkbox(
+                            value: checkboxValues?[index] ?? false,
+                            onChanged: (bool? value) {
+                              if (onCheckboxChanged != null) {
+                                onCheckboxChanged!(
+                                  data.keys.elementAt(index),
+                                  value,
+                                );
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
         const SizedBox(height: 66),
-        GestureDetector(
+        InkWell(
           onTap: () {
             onAddItem();
           },
@@ -82,7 +90,10 @@ class RowBuilder extends StatelessWidget {
             child: Center(
               child: Text(
                 buttonText,
-                style: const TextStyle(fontSize: 24, color: Colors.black),
+                style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.black,
+                ),
               ),
             ),
           ),

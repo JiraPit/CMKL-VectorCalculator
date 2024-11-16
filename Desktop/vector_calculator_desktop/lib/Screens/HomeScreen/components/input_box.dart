@@ -15,13 +15,7 @@ class InputBox extends StatefulWidget {
 }
 
 class _InputBoxState extends State<InputBox> {
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void dispose() {
@@ -45,10 +39,17 @@ class _InputBoxState extends State<InputBox> {
         onChanged: widget.onValueChanged, // Notify parent on change
         decoration: InputDecoration(
           hintText: widget.hintText, // Display hint text as (x, y, z)
+          hintStyle: TextStyle(
+            fontSize: 24,
+            color: Colors.black.withOpacity(0.5),
+            fontWeight: FontWeight.w300,
+          ),
           border: InputBorder.none,
-          hintStyle: const TextStyle(fontSize: 24, color: Colors.black),
         ),
-        style: const TextStyle(fontSize: 24, color: Colors.black),
+        style: const TextStyle(
+          fontSize: 24,
+          color: Colors.black,
+        ),
       ),
     );
   }

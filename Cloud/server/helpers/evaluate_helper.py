@@ -4,7 +4,7 @@ import numpy as np
 
 def evaluate_expression(
     vectors: dict[str, list[float]], expression: str
-) -> list[float] | float:
+) -> list[float]:
     vectors_np = {k: np.array(v) for k, v in vectors.items()}
     expression = expression.replace(" ", "")
 
@@ -52,8 +52,11 @@ def evaluate_expression(
             },
         )
         if isinstance(result, np.ndarray):
-            return result.tolist()
-        return result
+            return result.tolist()[:3]
+        elif isinstance(result, float):
+            return [result, 0, 0]
+        else:
+            return []
 
     except Exception as e:
         raise ValueError(f"Error evaluating expression: {e}")

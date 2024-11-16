@@ -13,7 +13,7 @@ COLORS = [
 ]
 
 
-def plot_3d_vectors(vectors: dict[str, list[float]]) -> str:
+def plot_3d_vectors(id: str, vectors: dict[str, list[float]]) -> None:
     # Create a 3D line plot with vectors
     fig = go.Figure()
 
@@ -48,4 +48,5 @@ def plot_3d_vectors(vectors: dict[str, list[float]]) -> str:
     # Generate HTML for the plot
     html_content = fig.to_html()
 
-    return html_content
+    with open(f"server/tmp/plots/plot_{id}.html", "w") as file:
+        file.write(html_content)

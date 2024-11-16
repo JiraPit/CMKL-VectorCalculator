@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart'; // New import
-import 'package:vector_calculator_desktop/Screens/HomeScreen/components/row_builder.dart'; // New import
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vector_calculator_desktop/Screens/HomeScreen/components/row_builder.dart';
+
+const String serverUrl =
+    'https://vector-calculator-server-968431016.asia-southeast1.run.app';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,195 +16,169 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int vectorCount = 2;
-  int operationsCount = 1;
+  bool _isDrawing = false;
+  bool _isCalculating = false;
 
-  List<bool> operationSelections = [];
-  List<String> vectors = [];
-  List<String> operations = [];
-  List<String> results = []; // Holds the results to display
-  String? graphHtmlContent; // Variable to hold the HTML content for the graph
+  final String id = (Random().nextInt(900000) + 100000).toString();
+  Map<String, bool> expressionSelections = {
+    'e1': false,
+  };
+  Map<String, String> vectors = {
+    'v1': '',
+  };
+  Map<String, String> expressions = {
+    'e1': '',
+  };
+  Map<String, List<double>> results = {};
 
-  @override
-  void initState() {
-    super.initState();
-    // Initialize operation selections and lists
-    operationSelections = List.generate(operationsCount, (_) => false);
-    vectors = List.generate(vectorCount, (_) => '');
-    operations = List.generate(operationsCount, (_) => '');
+  void _updateVector(String name, String value) {
+    vectors[name] = value;
   }
 
-  void updateVector(int index, String value) {
+  void _updateExpression(String name, String value) {
+    expressions[name] = value;
+  }
+
+  void _addVector() {
     setState(() {
-      if (index < vectors.length) {
-        vectors[index] = value;
-      }
+      vectors['v${vectors.length + 1}'] = '';
     });
   }
 
-  void updateOperation(int index, String value) {
+  void _addExpression() {
     setState(() {
-      if (index < operations.length) {
-        operations[index] = value;
-      }
-    });
-  }
-
-  void addVector() {
-    setState(() {
-      vectorCount++;
-      vectors.add('');
-    });
-  }
-
-  void addOperation() {
-    setState(() {
-      operationsCount++;
-      operations.add('');
-      operationSelections.add(false);
+      expressions['e${expressions.length + 1}'] = '';
+      expressionSelections['e${expressionSelections.length + 1}'] = false;
     });
   }
 
   // Function to get the evaluation results from the server
-  Future<void> getEvaluation() async {
-    // Construct the request body
+  Future<void> _getEvaluation() async {
     final body = {
-      "vectors": {
-        for (int i = 0; i < vectorCount; i++)
-          'v${i + 1}': _parseVector(vectors[i]),
-      },
-      "expressions": [
-        for (int i = 0; i < operationsCount; i++)
-          if (operationSelections[i]) operations[i],
-      ],
+      "vectors": vectors.map((key, value) {
+        if (value.isEmpty) {
+          return MapEntry(key, null);
+        } else {
+          return MapEntry(key, _parseVectorToList(value));
+        }
+      }),
+      "expressions": expressions.entries
+          .map((entry) {
+            if (expressionSelections[entry.key] ?? false) {
+              return entry.value;
+            } else {
+              return null;
+            }
+          })
+          .where((element) => element != null)
+          .toList(),
     };
-
-    // Print the body
-    debugPrint('Request: $body');
-
     try {
-      // Make an HTTP POST request
       final response = await http.post(
-        Uri.parse(
-            'https://vector-calculator-server-968431016.asia-southeast1.run.app/evaluate'),
-        headers: {"Content-Type": "application/json"},
+        Uri.parse('$serverUrl/evaluate'),
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: jsonEncode(body),
       );
 
-      // Check for successful response
       if (response.statusCode == 200) {
-        // Decode the JSON string into a dynamic structure
-        final jsonResponse = jsonDecode(response.body);
+        final Map<String, dynamic>? jsonResponse =
+            jsonDecode(utf8.decode(response.bodyBytes))
+                as Map<String, dynamic>?;
 
-        debugPrint('Response: $jsonResponse');
-
-        // Check if the response contains results and update the results list
         if (jsonResponse != null) {
           setState(() {
-            // Clear any previous results
             results.clear();
-
-            // Loop through the response and format it for display
             jsonResponse.forEach((operation, result) {
-              // Check if the result is "ERROR"
               if (result == "ERROR") {
-                results.add('$operation: INVALID');
+                results[operation] = [];
               } else {
-                String resultStr = result.map((e) => e.toString()).join(', ');
-                results.add('$operation: [$resultStr]');
+                results[operation] = (result as List)
+                    .map((e) => double.parse(e.toString()))
+                    .toList();
               }
             });
           });
         } else {
           setState(() {
-            results = ['Error: No results found in the response'];
+            results = {};
           });
         }
       } else {
         debugPrint('Error: HTTP ${response.statusCode}, ${response.body}');
         setState(() {
-          results = ['Error: HTTP ${response.statusCode}'];
+          results = {};
         });
       }
     } catch (e) {
       debugPrint('Exception during HTTP POST: $e');
       setState(() {
-        results = ['Exception: $e'];
+        results = {};
       });
     }
   }
 
-  Future<void> getGraph() async {
-    debugPrint('Getting graph');
-
-    // Construct the request body by extracting only the numbers after the colon
+  Future<void> _getGraph() async {
     final body = {
-      "vectors": {
-        for (int i = 0; i < results.length; i++)
-          if (!results[i].contains('INVALID'))
-            // Set the key to the first part of results before the colon
-            '${results[i].split(':')[0].trim()}': _parseVector(
-              // Set the value to the numbers after the colon
-              results[i]
-                  .split(':')[1]
-                  .trim()
-                  .substring(1, results[i].length - 1),
-            ),
-      }
+      "vectors": results,
+      "id": id,
     };
 
-    // Print the body for debugging
-    debugPrint('Request Body: $body');
-
     try {
-      // Make an HTTP POST request
       final response = await http.post(
-        Uri.parse(
-            'https://vector-calculator-server-968431016.asia-southeast1.run.app/plot'),
+        Uri.parse('$serverUrl/plot'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );
 
-      // Check for successful response (HTTP 200)
       if (response.statusCode == 200) {
-        // Handle HTML response, the response body is in HTML format
-        String responseBody = response.body;
-
-        // Optionally, print the response to the debug console to see the HTML content
-        debugPrint('Response: $responseBody');
-
-        // Set the HTML response as the graph content
-        setState(() {
-          graphHtmlContent = responseBody;
-        });
       } else {
-        debugPrint('Error: HTTP ${response.statusCode}, ${response.body}');
+        debugPrint('Error: HTTP ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Exception during HTTP POST: $e');
     }
   }
 
-  List<double>? _parseVector(String input) {
+  List<double>? _parseVectorToList(String input) {
     try {
       return input
-          .replaceAll(RegExp(r'[()\s]'), '') // Remove parentheses and spaces
+          .replaceAll(RegExp(r'[()\s]'), '')
           .split(',')
           .map((e) => double.parse(e))
           .toList();
     } catch (e) {
       debugPrint('Invalid vector format: $input');
-      return null; // Return null for invalid input
+      return null;
     }
   }
 
-  Future<void> draw() async {
-    debugPrint('Draw button pressed');
+  Future<void> _onCalculate() async {
+    setState(() {
+      _isCalculating = true;
+    });
     debugPrint('Vectors: $vectors');
-    debugPrint('Operations: $operations');
-    await getEvaluation(); // Fetch the evaluation results
-    await getGraph(); // Fetch the graph
-    setState(() {});
+    debugPrint('Operations: $expressions');
+    await _getEvaluation();
+    setState(() {
+      _isCalculating = false;
+    });
+  }
+
+  Future<void> _onDraw() async {
+    setState(() {
+      _isDrawing = true;
+    });
+    debugPrint('Results: $results');
+    await _getGraph();
+    final Uri url = Uri.parse("$serverUrl/get_plot/$id");
+    if (!await launchUrl(url)) {
+      debugPrint('Could not launch $url');
+    }
+    setState(() {
+      _isDrawing = false;
+    });
   }
 
   @override
@@ -210,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text(
-          'Vector Operations Visualizer',
+          'Vector Calculator',
           style: TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,
@@ -224,94 +202,125 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left side - Vectors Section
                 RowBuilder(
-                  itemCount: vectorCount,
-                  labelPrefix: 'Vector v',
+                  data: vectors,
                   inputHint: 'x,y,z',
                   buttonText: 'ADD VECTOR',
-                  onAddItem: addVector,
-                  onValueChanged: updateVector,
+                  onAddItem: _addVector,
+                  onValueChanged: _updateVector,
                 ),
                 const SizedBox(width: 200),
-                // Right side - Operations Section
                 RowBuilder(
-                  itemCount: operationsCount,
-                  labelPrefix: 'Resultant',
+                  data: expressions,
                   inputHint: 'v1 + v2',
                   buttonText: 'ADD EXPRESSION',
-                  onAddItem: addOperation,
-                  onValueChanged: updateOperation,
+                  onAddItem: _addExpression,
+                  onValueChanged: _updateExpression,
                   hasCheckbox: true,
-                  operationSelections: operationSelections,
-                  onCheckboxChanged: (index, value) {
+                  checkboxValues: expressionSelections.values.toList(),
+                  onCheckboxChanged: (name, value) {
                     setState(() {
-                      operationSelections[index] = value ?? false;
+                      expressionSelections[name] = value ?? false;
                     });
                   },
                 ),
               ],
             ),
             const SizedBox(height: 70),
-            Container(
-              height: 1,
-              width: 1263,
+            const Divider(
               color: Colors.black,
+              thickness: 1,
             ),
             const SizedBox(height: 61),
-            Center(
-              child: GestureDetector(
-                onTap: draw,
-                child: Container(
-                  width: 263,
-                  height: 66,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF66E16C),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "DRAW!",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
+            !_isCalculating
+                ? Center(
+                    child: InkWell(
+                      onTap: _onCalculate,
+                      child: Container(
+                        width: 263,
+                        height: 66,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF66E16C),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "CALCULATE",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            // GRAPH HERE
+                  )
+                : const CircularProgressIndicator(),
             const SizedBox(height: 20),
-            // Result text
-            Center(
-              child: results.isEmpty
-                  ? const Text(
-                      'No results available yet',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                      ),
-                    )
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var result in results)
+            results.isEmpty
+                ? const Text(
+                    'No results available yet',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: results.entries.map((entry) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Text(
-                            result,
+                            "${entry.key}: ",
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            entry.value.isEmpty
+                                ? 'INVALID INPUT'
+                                : entry.value.join(', '),
                             style: const TextStyle(
                               color: Colors.black,
                               fontSize: 20,
                             ),
                           ),
-                      ],
-                    ),
-            ),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    }).toList(),
+                  ),
             const SizedBox(height: 20),
-            // Graph of the result
-            graphHtmlContent != null
-                ? HtmlWidget(graphHtmlContent!) // Render the HTML content here
-                : const SizedBox.shrink(),
+            if (results.isNotEmpty)
+              !_isDrawing
+                  ? Center(
+                      child: InkWell(
+                        onTap: _onDraw,
+                        child: Container(
+                          width: 263,
+                          height: 66,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF66E16C),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "DRAW GRAPH",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const CircularProgressIndicator(),
+            const SizedBox(height: 20),
           ],
         ),
       ),
