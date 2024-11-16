@@ -187,11 +187,15 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text(
-          'Vector Calculator',
-          style: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
+        toolbarHeight: 100,
+        title: const Padding(
+          padding: EdgeInsets.only(top: 50),
+          child: Text(
+            'Vector Calculator',
+            style: TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
