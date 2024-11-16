@@ -13,9 +13,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int vectorCount = 2;
   int operationsCount = 1;
+
   List<bool> operationSelections = [];
   List<String> vectors = [];
   List<String> operations = [];
+  List<String> results = []; // Holds the results to display
 
   @override
   void initState() {
@@ -89,19 +91,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
         debugPrint('Response: $jsonResponse');
 
-        // Check if the response contains an error
-        if (jsonResponse['error'] != null) {
-          debugPrint('Error: ${jsonResponse['error']}');
-          return;
-        }
+        // Check if the response contains results and update the results list
+        if (jsonResponse != null) {
+          setState(() {
+            // Clear any previous results
+            results.clear();
 
-        // Process the successful response
-        debugPrint('Result: ${jsonResponse['result']}');
+            // Loop through the response and format it for display
+            jsonResponse.forEach((operation, result) {
+              // Check if the result is "ERROR"
+              if (result == "ERROR") {
+                results.add('$operation: INVALID');
+              } else {
+                String resultStr = result.map((e) => e.toString()).join(', ');
+                results.add('$operation: [$resultStr]');
+              }
+            });
+          });
+        } else {
+          setState(() {
+            results = ['Error: No results found in the response'];
+          });
+        }
       } else {
         debugPrint('Error: HTTP ${response.statusCode}, ${response.body}');
+        setState(() {
+          results = ['Error: HTTP ${response.statusCode}'];
+        });
       }
     } catch (e) {
       debugPrint('Exception during HTTP POST: $e');
+      setState(() {
+        results = ['Exception: $e'];
+      });
     }
   }
 
@@ -122,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
     debugPrint('Draw button pressed');
     debugPrint('Vectors: $vectors');
     debugPrint('Operations: $operations');
-    getEvaluation();
+    getEvaluation(); // Fetch the evaluation results
     setState(() {});
   }
 
@@ -193,17 +215,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: const Center(
-                    child: Text(
-                      "DRAW!",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 20.0),
+                      child: Text(
+                        "DRAW!",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 24,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            )
+            ),
+            // GRAPH HERE
+
+            const SizedBox(height: 20),
+            // RESULTS SECTION
+            Center(
+              child: results.isEmpty
+                  ? const Text(
+                      'No results available yet',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    )
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (var result in results)
+                          Text(
+                            result,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
           ],
         ),
       ),
