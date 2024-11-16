@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:vector_calculator_desktop/Screens/HomeScreen/components/row_builder.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart'; // New import
+import 'package:vector_calculator_desktop/Screens/HomeScreen/components/row_builder.dart'; // New import
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> vectors = [];
   List<String> operations = [];
   List<String> results = []; // Holds the results to display
+  String? graphHtmlContent; // Variable to hold the HTML content for the graph
 
   @override
   void initState() {
@@ -59,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // Function to get the evaluation results from the server
   Future<void> getEvaluation() async {
     // Construct the request body
     final body = {
@@ -127,6 +130,57 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> getGraph() async {
+    debugPrint('Getting graph');
+
+    // Construct the request body by extracting only the numbers after the colon
+    final body = {
+      "vectors": {
+        for (int i = 0; i < results.length; i++)
+          if (!results[i].contains('INVALID'))
+            // Set the key to the first part of results before the colon
+            '${results[i].split(':')[0].trim()}': _parseVector(
+              // Set the value to the numbers after the colon
+              results[i]
+                  .split(':')[1]
+                  .trim()
+                  .substring(1, results[i].length - 1),
+            ),
+      }
+    };
+
+    // Print the body for debugging
+    debugPrint('Request Body: $body');
+
+    try {
+      // Make an HTTP POST request
+      final response = await http.post(
+        Uri.parse(
+            'https://vector-calculator-server-968431016.asia-southeast1.run.app/plot'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      // Check for successful response (HTTP 200)
+      if (response.statusCode == 200) {
+        // Handle HTML response, the response body is in HTML format
+        String responseBody = response.body;
+
+        // Optionally, print the response to the debug console to see the HTML content
+        debugPrint('Response: $responseBody');
+
+        // Set the HTML response as the graph content
+        setState(() {
+          graphHtmlContent = responseBody;
+        });
+      } else {
+        debugPrint('Error: HTTP ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Exception during HTTP POST: $e');
+    }
+  }
+
   List<double>? _parseVector(String input) {
     try {
       return input
@@ -140,11 +194,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void draw() {
+  Future<void> draw() async {
     debugPrint('Draw button pressed');
     debugPrint('Vectors: $vectors');
     debugPrint('Operations: $operations');
-    getEvaluation(); // Fetch the evaluation results
+    await getEvaluation(); // Fetch the evaluation results
+    await getGraph(); // Fetch the graph
     setState(() {});
   }
 
@@ -172,8 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Left side - Vectors Section
                 RowBuilder(
                   itemCount: vectorCount,
-                  labelPrefix: 'Vector V',
-                  inputHint: '(x, y, z)',
+                  labelPrefix: 'Vector v',
+                  inputHint: 'x,y,z',
                   buttonText: 'ADD VECTOR',
                   onAddItem: addVector,
                   onValueChanged: updateVector,
@@ -215,14 +270,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 20.0),
-                      child: Text(
-                        "DRAW!",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 24,
-                        ),
+                    child: Text(
+                      "DRAW!",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
                       ),
                     ),
                   ),
@@ -230,9 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             // GRAPH HERE
-
             const SizedBox(height: 20),
-            // RESULTS SECTION
+            // Result text
             Center(
               child: results.isEmpty
                   ? const Text(
@@ -256,6 +307,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
             ),
+            const SizedBox(height: 20),
+            // Graph of the result
+            graphHtmlContent != null
+                ? HtmlWidget(graphHtmlContent!) // Render the HTML content here
+                : const SizedBox.shrink(),
           ],
         ),
       ),
