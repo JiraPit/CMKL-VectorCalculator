@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:vector_calculator_desktop/Screens/HomeScreen/components/row_builder.dart';
 
@@ -12,11 +14,71 @@ class _HomeScreenState extends State<HomeScreen> {
   int vectorCount = 2;
   int operationsCount = 1;
   List<bool> operationSelections = [];
+  List<String> vectors = [];
+  List<String> operations = [];
 
   @override
   void initState() {
     super.initState();
+    // Initialize operation selections and lists
     operationSelections = List.generate(operationsCount, (_) => false);
+    vectors = List.generate(vectorCount, (_) => '');
+    operations = List.generate(operationsCount, (_) => '');
+  }
+
+  Future<void> getEvaluation() async {
+    // Construct the request body
+    final body = {
+      "vectors": {
+        for (int i = 0; i < vectorCount; i++)
+          'v${i + 1}': _parseVector(vectors[i]),
+      },
+      "expressions": operations,
+    };
+
+    try {
+      // Make an HTTP POST request
+      final response = await http.post(
+        Uri.parse(
+            'https://vector-calculator-server-968431016.asia-southeast1.run.app/evaluate'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      // Check for successful response
+      if (response.statusCode == 200) {
+        // Decode the JSON string into a dynamic structure
+        final jsonResponse = jsonDecode(response.body);
+
+        debugPrint('Response: $jsonResponse');
+
+        // Check if the response contains an error
+        if (jsonResponse['error'] != null) {
+          debugPrint('Error: ${jsonResponse['error']}');
+          return;
+        }
+
+        // Process the successful response
+        debugPrint('Result: ${jsonResponse['result']}');
+      } else {
+        debugPrint('Error: HTTP ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Exception during HTTP POST: $e');
+    }
+  }
+
+  List<double>? _parseVector(String input) {
+    try {
+      return input
+          .replaceAll(RegExp(r'[()\s]'), '') // Remove parentheses and spaces
+          .split(',')
+          .map((e) => double.parse(e))
+          .toList();
+    } catch (e) {
+      debugPrint('Invalid vector format: $input');
+      return null; // Return null for invalid input
+    }
   }
 
   void addVector() {
